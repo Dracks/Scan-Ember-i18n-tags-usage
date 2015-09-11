@@ -87,7 +87,7 @@ def scan_folder(folder, output):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Tool to call Binding endpoints")
+    parser = argparse.ArgumentParser(description="Tool to retrieve all the ")
 
     parser.add_argument('-f', default=None, help="format json", metavar=('file,json',))
     parser.add_argument('-s', default=None, help="Search/scan for i18n usages on folder", metavar=('folder',))
