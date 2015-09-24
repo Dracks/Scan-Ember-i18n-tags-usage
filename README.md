@@ -35,6 +35,22 @@ It will output something like:
 }
 ```
 
+#### Weblate integration
+You can use the json generation of this script to use [weblate](https://weblate.org/) to translate your application. 
+
+1. Generate a base json with gen_locales to a file app/locales/base.json (weblate use json)
+2. Create a json version of your localized files (Delete the export default, and the ending ';') 
+3. Copy the weblate-pre-commit.sh script into weblate scripts folder, and add it on pre-commit-scripts (settings) configuration 
+it should looks like:
+```Python
+PRE_COMMIT_SCRIPTS = (
+   '/path/to/scripts/weblate-pre-commit.sh',
+)
+```
+4. Create a project on the weblate and the component that loads your git repository configure the language files using the json, 
+and set the pre-commit-script to the weblate-pre-commit.sh. 
+5. Enjoy translating the project!
+
 ### Reformat json  
 As the json was generated automatically, it means the keys were sorted. This is to transform an old json, to a sorted 
 json to improve the usage when you have a project with a manual localization file, to ensure the sort of keys was the same 
@@ -43,7 +59,3 @@ as the generated file by this tool. To use this simple feature run as:
 ```BASH
 $PATH_SCRIPT/gen_locales.py -f old_translations.json
 ```
-
-
-## TO-DO
- * Add the option to generate a ember-cli file with the translations. 
