@@ -60,10 +60,44 @@ class GenLocales:
             set_value(ret, filename, line, path, found)
 
         return ret
+        
+    def get_plain_dict(self):
+        r={}
+        for (filename, line, found) in self.list_found:
+            text = "found in: {filename} line: {line}".format(filename=filename, line=line)
+            v= r.get(found, None)
+            if v is None:
+                r[found]=text
+            else:
+                r[found] += "\n"+text
+        return r
+
+
+class JsonOutput():
+    def __init__(self, file_output, base=None):
+        self.file_output=file_output
+        if base is None:
+            self.base={}
+        else:
+            self.base=base
+            
+    def save(self, data):
+        def merge(base, data):
+            ret = {}
+            for key in data.keys():
+                value = data[key]
+                if isinstance(value, dict):
+                    value=merge(base.get(key, {}), value)
+                else:
+                    value=base.get(key, value)
+                ret[key]=value
+            return ret
+        output=merge(self.base, data)
+        json.dump(output, self.file_output, sort_keys=True, indent=4)
 
 
 def format(fp, output):
-    json.dump(json.load(fp), output, sort_keys=True, indent=4)
+    output.save(json.load(fp))
 
 
 def scan_folder(folder, output):
@@ -83,13 +117,14 @@ def scan_folder(folder, output):
                 contents = open(new_path, 'r').read()
                 generator.parse(new_path, contents)
 
-    json.dump(generator.get_dict(), output, sort_keys=True, indent=4)
+    output.save(generator.get_plain_dict())
 
 
 def main():
     parser = argparse.ArgumentParser(description="Tool to retrieve all the ")
 
-    parser.add_argument('-f', default=None, help="format json", metavar=('file,json',))
+    parser.add_argument('-f', default=None, help="format json", metavar=('file.json',))
+    parser.add_argument('-m', default=None, help="Merge file", metavar=('origin.json',))
     parser.add_argument('-s', default=None, help="Search/scan for i18n usages on folder", metavar=('folder',))
     parser.add_argument('-o', default=None, help="Output file", metavar=('file.json',))
 
@@ -104,7 +139,13 @@ def main():
     output = sys.stdout
 
     if args.o:
-        output = open('args.o', 'w')
+        output = open(args.o, 'w')
+    
+    base=None
+    if args.m:
+        base = json.load(open(args.m))
+        
+    output=JsonOutput(output, base)
 
     if args.f:
         format(open(args.f), output)
