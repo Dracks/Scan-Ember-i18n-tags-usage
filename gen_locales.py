@@ -14,7 +14,8 @@ class GenLocales:
             re.compile(r"\{\{.*t [\"']([a-zA-Z\-\.]*)[\"']"),
             re.compile(r"I18n\.translationMacro\([\"']([a-zA-Z\-\.]*)[\"']"),
             re.compile(r"i18n\.t\([\"\']([a-zA-Z\-\.]*)[\"']"),
-            re.compile(r"\"i18n[\"']\).t\([\"\']([a-zA-Z\-\.]*)[\"']")
+            re.compile(r"\"i18n[\"']\).t\([\"\']([a-zA-Z\-\.]*)[\"']"),
+            re.compile(r"\ t\([\"\']([a-zA-Z\-\.]*)[\"']")
         ]
         self.new_line_pattern = re.compile(r"([\n|\r])^", re.MULTILINE)
         self.list_found = []
@@ -137,13 +138,13 @@ def main():
         parser.error('You should use the argument -f or -s')
 
     output = sys.stdout
-
-    if args.o:
-        output = open(args.o, 'w')
     
     base=None
     if args.m:
         base = json.load(open(args.m))
+        
+    if args.o:
+        output = open(args.o, 'w')
         
     output=JsonOutput(output, base)
 
